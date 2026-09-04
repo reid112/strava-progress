@@ -1,0 +1,238 @@
+<div class="tip" id="tip"></div>
+<header class="wrap">
+  <h1>Nine years, <span id="h-km"></span> km.</h1>
+  <p class="lede" id="h-lede"></p>
+  <div class="race" id="race">
+    <h3>A 5K: the runner you were in 2017 against the one you are now</h3>
+    <div class="lane" id="lane">
+      <div class="track"></div>
+      <div class="runner then" id="r-then" style="left:0%"><span class="tag" id="tag-then">2017</span></div>
+      <div class="runner now" id="r-now" style="left:0%"><span class="tag" id="tag-now" style="top:auto;bottom:-22px">2026</span></div>
+    </div>
+    <div class="clock">
+      <div><div class="t" id="clk">0:00</div><div class="l">race clock</div></div>
+      <div><div class="t" style="color:var(--canola)" id="d-now">0.00 km</div><div class="l">2026 · 18:39 best</div></div>
+      <div><div class="t" style="color:var(--wheat)" id="d-then">0.00 km</div><div class="l">2017 · 24:08 best</div></div>
+      <div style="margin-left:auto"><button id="go">Run the race</button></div>
+    </div>
+    <div class="result" id="res"></div>
+  </div>
+</header>
+
+<nav aria-label="Sections"><div class="wrap" role="tablist">
+  <button role="tab" data-tab="overview" aria-selected="true">Overview</button>
+  <button role="tab" data-tab="progress">Progress</button>
+  <button role="tab" data-tab="records">Races &amp; records</button>
+  <button role="tab" data-tab="volume">Volume &amp; habits</button>
+  <button role="tab" data-tab="multi">Multisport</button>
+  <button role="tab" data-tab="predict">Where this goes</button>
+</div></nav>
+
+<main class="wrap">
+
+<!-- ================= OVERVIEW ================= -->
+<section class="tab active" id="tab-overview">
+  <h2>The shape of nine years</h2>
+  <p class="lede">Three separate attempts at being a runner, and one that stuck. The bars are kilometres per year; the small text is the best 5K found anywhere inside that year's runs.</p>
+  <div class="timeline" id="timeline"></div>
+  <div class="grid g3" style="margin-top:28px">
+    <div class="panel stat"><div class="bignum" id="s-runs"></div><div class="big-label">runs recorded</div></div>
+    <div class="panel stat"><div class="bignum" id="s-hours"></div><div class="big-label">hours on your feet</div></div>
+    <div class="panel stat"><div class="bignum" id="s-days"></div><div class="big-label">days with an activity</div></div>
+    <div class="panel stat"><div class="bignum" id="s-mar"></div><div class="big-label">marathons (+ one 50K)</div></div>
+    <div class="panel stat"><div class="bignum" id="s-long"></div><div class="big-label">runs of a half or longer</div></div>
+    <div class="panel stat"><div class="bignum" id="s-elev"></div><div class="big-label">metres climbed — on the prairie</div></div>
+  </div>
+  <div class="panel">
+    <h3>Kilometres per month, every month since April 2017</h3>
+    <div class="chart" id="c-monthly-wrap"><canvas id="c-monthly"></canvas></div>
+    <p class="note">The three restarts are obvious: spring 2017, spring 2021, spring 2024. What's different about the third one is that it never went to zero again.</p>
+  </div>
+  <div class="grid g2">
+    <div class="panel">
+      <h3>Same effort, faster legs</h3>
+      <div class="chart short"><canvas id="c-yr-pace-hr"></canvas></div>
+      <p class="note">Median pace of runs of 2 km or more (yellow) against average heart rate across all runs with HR (blue). 2021 looks slow because that year was mostly deliberate easy running at ~154 bpm; in 2017 the same paces cost 176 bpm.</p>
+    </div>
+    <div class="panel">
+      <h3>Race-equivalent fitness by quarter</h3>
+      <div class="chart short"><canvas id="c-vdot-mini"></canvas></div>
+      <p class="note">Daniels VDOT from the best effort of 5K or longer in each quarter, so it reflects what you actually raced, not what you might have. Full version on the Progress tab.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PROGRESS ================= -->
+<section class="tab" id="tab-progress">
+  <h2>How the times came down</h2>
+  <p class="lede">Every run was scanned for its fastest 1K, mile, 5K, 10K, 15K, half, 30K and marathon segment, the same way Strava's best efforts work. That means training runs count, not just races.</p>
+  <div class="panel">
+    <div class="seg" id="seg-dist" role="group" aria-label="Distance"></div>
+    <div class="chart tall"><canvas id="c-effort"></canvas></div>
+    <p class="note">Dots are the best segment of that distance inside each run. The stepped line is the record as it stood at the time. Hover a dot for the run.</p>
+    <div id="pr-chain"></div>
+  </div>
+  <div class="panel">
+    <h3>Best of each year</h3>
+    <div style="overflow-x:auto"><table id="t-yearbest"></table></div>
+    <p class="note">Blank cells mean no run that year covered the distance. The 2026 marathon cell is the split from inside the 50K, not a race.</p>
+  </div>
+  <div class="grid g2">
+    <div class="panel">
+      <h3>Aerobic efficiency</h3>
+      <div class="chart"><canvas id="c-aero"></canvas></div>
+      <p class="note">Runs of 5 km or more with an average heart rate between 135 and 158 bpm — genuinely easy running. Blue: median pace each quarter. Yellow: metres per minute per heartbeat (speed ÷ HR), the cleanest single number for aerobic fitness in a log like this. Quarters with fewer than three qualifying runs are skipped, and HR data only starts in earnest in 2021.</p>
+    </div>
+    <div class="panel">
+      <h3>Pace against heart rate, every run</h3>
+      <div class="chart"><canvas id="c-cloud"></canvas></div>
+      <p class="note">Each dot is one run of 3 km or more with HR. The cloud slides down and left over the years: faster at the same cost. Colour is the year.</p>
+    </div>
+  </div>
+  <div class="grid g2">
+    <div class="panel">
+      <h3>Hours by heart-rate zone</h3>
+      <div class="chart"><canvas id="c-zones"></canvas></div>
+      <p class="note">Second-by-second HR from the FIT files, bucketed on a 201 bpm max. 2017 and 2018 were almost entirely zone 4–5 — every run was a race. 2025 is 60% zone 3 and below, which is what made the fast stuff possible.</p>
+    </div>
+    <div class="panel">
+      <h3>Cadence</h3>
+      <div class="chart"><canvas id="c-cad"></canvas></div>
+      <p class="note">Yearly average steps per minute across runs with cadence data. Slowly climbing; the 2026 number reflects the shorter, quicker sessions of the half block.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= RECORDS ================= -->
+<section class="tab" id="tab-records">
+  <h2>Races and time trials</h2>
+  <p class="lede">Everything you named as a race or time trial, in order. Elapsed time is closest to a chip time; official results are shown where you've told me them.</p>
+  <div class="panel">
+    <div style="overflow-x:auto"><table id="t-races"></table></div>
+  </div>
+  <div class="panel">
+    <h3>All-time records</h3>
+    <div style="overflow-x:auto"><table id="t-records"></table></div>
+    <p class="note">Segment records from inside any run. The 30K record is the split from inside QCM 2025. Where a race GPS track came up a few metres short of the full distance, the whole-run time is scaled to the exact distance and marked with an asterisk.</p>
+  </div>
+  <div class="panel">
+    <h3>Longest runs</h3>
+    <div style="overflow-x:auto"><table id="t-longest"></table></div>
+  </div>
+</section>
+
+<!-- ================= VOLUME ================= -->
+<section class="tab" id="tab-volume">
+  <h2>Volume, consistency, habits</h2>
+  <p class="lede">The fitness gains on the Progress tab are downstream of this tab.</p>
+  <div class="panel">
+    <h3>Weekly kilometres, last two years</h3>
+    <div class="chart"><canvas id="c-weekly"></canvas></div>
+    <p class="note" id="weekly-note"></p>
+  </div>
+  <div class="panel">
+    <h3>Every day since September 2024</h3>
+    <div class="heat" id="heat"></div>
+    <div class="heat-legend">
+      <span><i style="background:var(--canola)"></i>run</span><span><i style="background:var(--sky)"></i>bike</span><span><i style="background:var(--swim)"></i>swim</span><span><i style="background:var(--strength)"></i>strength</span><span><i style="background:var(--other)"></i>walk / golf / other</span><span>· darker = longer</span>
+    </div>
+    <p class="note">Coloured by the sport that took the most time that day. Hover for details.</p>
+  </div>
+  <div class="grid g2">
+    <div class="panel">
+      <h3>Weeks with three or more runs</h3>
+      <div class="chart short"><canvas id="c-consist"></canvas></div>
+      <p class="note">Out of 52. This is the chart that explains the others: 8 such weeks in 2017, 47 in 2025.</p>
+    </div>
+    <div class="panel">
+      <h3>How long your runs are</h3>
+      <div class="chart short"><canvas id="c-distdist"></canvas></div>
+      <p class="note">Share of runs by distance bucket. The 12–21 km and 21+ km bands barely existed before 2021.</p>
+    </div>
+  </div>
+  <div class="grid g2">
+    <div class="panel">
+      <h3>When you run</h3>
+      <div class="chart short"><canvas id="c-hour"></canvas></div>
+      <p class="note">Start hour, local time (Regina). Early mornings and the 11 o'clock lunch run dominate.</p>
+    </div>
+    <div class="panel">
+      <h3>Which days</h3>
+      <div class="chart short"><canvas id="c-dow"></canvas></div>
+    </div>
+  </div>
+  <div class="panel">
+    <h3>Shoes, by kilometres</h3>
+    <div class="chart tall"><canvas id="c-shoes"></canvas></div>
+    <p class="note">Top 15 pairs. Hover for run count and the dates you used them.</p>
+  </div>
+</section>
+
+<!-- ================= MULTISPORT ================= -->
+<section class="tab" id="tab-multi">
+  <h2>Beyond running</h2>
+  <p class="lede">Strava has <span id="m-totals"></span>. The triathlon year changes the shape of the whole log.</p>
+  <div class="panel">
+    <h3>Training hours by sport, per month</h3>
+    <div class="chart tall"><canvas id="c-sport-hours"></canvas></div>
+    <p class="note">From 2024 onward, when the log becomes complete. Hockey isn't in Strava, so winter cross-training is under-counted.</p>
+  </div>
+  <div class="grid g2">
+    <div class="panel">
+      <h3>Ironman 70.3 Calgary — July 26, 2026</h3>
+      <div id="calgary"></div>
+      <p class="note">Split from the multisport FIT file. The run leg is 21.2 km at 1:47 with an average HR of 169, negative-split, in 30°C+ heat, after 87 km on the bike. That run leg on its own would have been a top-five half in your log before 2025.</p>
+    </div>
+    <div class="panel">
+      <h3>Yearly totals by sport</h3>
+      <div style="overflow-x:auto"><table id="t-sport"></table></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PREDICTION ================= -->
+<section class="tab" id="tab-predict">
+  <h2>Where this goes</h2>
+  <p class="lede">A projection, not a promise. It assumes you keep training roughly as you have for the past two years and stay healthy. Move the slider to see what more or less time does.</p>
+  <div class="panel">
+    <h3>How the model works</h3>
+    <p>Your race-equivalent fitness (VDOT) is estimated each quarter from the best effort of 5 km or longer, then smoothed as the best of the trailing four quarters so an off-season or a hot marathon doesn't read as lost fitness. From the start of the current stretch in spring 2024 it has climbed at about <strong id="p-rate"></strong> VDOT points per year on <strong id="p-hours"></strong> hours of training a week (<span id="p-runh"></span> of it running, about <span id="p-km"></span> km).</p>
+    <p>Gains at this level don't stay linear. The model continues the current rate but lets it decay toward a ceiling. The conservative scenario starts at 70% of the measured rate and fades over about 2.5 years; base uses the measured rate over 3.5 years; optimistic uses 120% over 4 years. Training time moves the rate by the square root of the change in hours, so doubling hours does not double the gain. Times are then read off the Daniels tables for each distance. Marathon times get an extra 1.5% because your marathon fitness has historically trailed your 5K fitness slightly — small now, larger in 2021.</p>
+    <div class="slider">
+      <label for="hrs">Weekly training hours</label>
+      <input type="range" id="hrs" min="3" max="10" step="0.25">
+      <output id="hrs-out"></output>
+      <span class="note" style="margin:0">your two-year average is <span id="hrs-base"></span> h/week</span>
+    </div>
+    <div class="chart tall"><canvas id="c-proj"></canvas></div>
+    <p class="note">Dots: measured quarterly fitness (dark from spring 2024, the window the trend is fitted on). Lines: projected fitness under the three scenarios, starting from the August 5K. The dip in early 2026 is the triathlon winter; the trailing-max smoothing means it doesn't pull the trend down.</p>
+  </div>
+  <div class="panel">
+    <h3>Projected race times</h3>
+    <div class="seg" id="seg-scn" role="group" aria-label="Scenario">
+      <button data-s="cons" aria-pressed="false">Conservative</button>
+      <button data-s="base" aria-pressed="true">Base</button>
+      <button data-s="opt" aria-pressed="false">Optimistic</button>
+    </div>
+    <div style="overflow-x:auto"><table id="t-proj"></table></div>
+    <p class="note">Each row is what a well-executed race at that distance could look like at that point, given a proper block for it. The Sep 2026 half row is the pure fitness equivalent of your August 5K; the 4:08–4:12/km band we're working to (1:27–1:29) deliberately sits a notch under it for a first half at this fitness. You can't hold all four at once — a marathon block costs 5K sharpness and vice versa.</p>
+  </div>
+  <div class="panel">
+    <h3>Milestones</h3>
+    <div class="milestones" id="milestones"></div>
+    <p class="note">Year the selected scenario first crosses each mark. "Now" means the fitness is already there on paper; it still needs the right race.</p>
+  </div>
+  <div class="panel">
+    <h3>What could make this wrong</h3>
+    <ul class="caveats">
+      <li><strong>Injury.</strong> The single biggest variable, and the model has no term for it. Your two zero years (2019, 2023) were both life, not injury — but at 50+ km/week the risk profile changes.</li>
+      <li><strong>Age.</strong> Not in the export, so not modelled. If you're under ~35 it's irrelevant for this horizon; if older, subtract a little from the optimistic line.</li>
+      <li><strong>Specificity.</strong> The projection is fitness, not results. The 2024 marathon shows what heat does; the 2025 one shows what a clean block does at the same fitness.</li>
+      <li><strong>Sample size.</strong> The trend is fitted on eleven quarters. The 2025 plateau (VDOT 50–51 all year) and the 2026 jump could both be noise around a smoother line.</li>
+      <li><strong>Diminishing returns.</strong> Everyone's ceiling is different. The conservative line assumes you're closer to yours than the numbers suggest; the optimistic one assumes you aren't.</li>
+    </ul>
+  </div>
+</section>
+</main>
+<footer class="wrap">Built from your Strava export of August 27, 2026: <span id="f-n"></span> activities, <span id="f-runs"></span> runs parsed at the second-by-second level. Times inside runs are moving time; races show elapsed. Local times assume Regina (UTC−6).</footer>
+

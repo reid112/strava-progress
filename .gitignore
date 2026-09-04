@@ -27,3 +27,4 @@ dist-ssr
 reference/data.json
 *.zip
 fixtures/private/
+.scratch/
