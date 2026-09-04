@@ -1,0 +1,191 @@
+<div class="tip" id="tip"></div>
+<header class="wrap">
+  <div class="topbar">
+    <div class="who" id="who"></div>
+    <div class="controls">
+      <div class="seg small" id="seg-units" role="group" aria-label="Units"><button data-u="km" aria-pressed="true">km</button><button data-u="mi" aria-pressed="false">mi</button></div>
+      <button class="ghost" id="edit-races" type="button">Edit races</button>
+      <button class="ghost" id="start-over" type="button">Load another export</button>
+    </div>
+  </div>
+  <h1 id="h-title"></h1>
+  <p class="lede" id="h-lede"></p>
+  <div class="race" id="race" hidden>
+    <h3 id="race-h"></h3>
+    <div class="lane" id="lane">
+      <div class="track"></div>
+      <div class="runner then" id="r-then" style="left:0%"><span class="tag" id="tag-then"></span></div>
+      <div class="runner now" id="r-now" style="left:0%"><span class="tag" id="tag-now" style="top:auto;bottom:-22px"></span></div>
+    </div>
+    <div class="clock">
+      <div><div class="t" id="clk">0:00</div><div class="l">race clock</div></div>
+      <div><div class="t" style="color:var(--canola)" id="d-now"></div><div class="l" id="l-now"></div></div>
+      <div><div class="t" style="color:var(--wheat)" id="d-then"></div><div class="l" id="l-then"></div></div>
+      <div style="margin-left:auto"><button id="go" type="button">Run the race</button></div>
+    </div>
+    <div class="result" id="res"></div>
+  </div>
+</header>
+
+<nav aria-label="Sections"><div class="wrap" role="tablist" id="tabs"></div></nav>
+
+<main class="wrap">
+
+<section class="tab" id="tab-overview">
+  <h2 id="ov-h"></h2>
+  <p class="lede" id="ov-lede"></p>
+  <div class="timeline" id="timeline"></div>
+  <div class="grid g3" style="margin-top:28px" id="stats"></div>
+  <div class="panel">
+    <h3 id="monthly-h"></h3>
+    <div class="chart"><canvas id="c-monthly"></canvas></div>
+    <p class="note" id="monthly-note"></p>
+  </div>
+  <div class="grid g2" id="ov-run-panels">
+    <div class="panel">
+      <h3>Same effort, faster legs</h3>
+      <div class="chart short"><canvas id="c-yr-pace-hr"></canvas></div>
+      <p class="note" id="pacehr-note"></p>
+    </div>
+    <div class="panel">
+      <h3>Race-equivalent fitness by quarter</h3>
+      <div class="chart short"><canvas id="c-vdot-mini"></canvas></div>
+      <p class="note">Daniels VDOT from the best effort of 5K or longer in each quarter, so it reflects what you actually ran, not what you might have. Full version on the Progress tab.</p>
+    </div>
+  </div>
+</section>
+
+<section class="tab" id="tab-progress">
+  <h2>How the times came down</h2>
+  <p class="lede">Every run was scanned for its fastest 1K, mile, 5K, 10K, 15K, half, 30K and marathon segment, the same way Strava's best efforts work. That means training runs count, not just races.</p>
+  <div class="panel">
+    <div class="seg" id="seg-dist" role="group" aria-label="Distance"></div>
+    <div class="chart tall"><canvas id="c-effort"></canvas></div>
+    <p class="note">Dots are the best segment of that distance inside each run. The stepped line is the record as it stood at the time. Hover a dot for the run.</p>
+    <div id="pr-chain"></div>
+  </div>
+  <div class="panel">
+    <h3>Best of each year</h3>
+    <div style="overflow-x:auto"><table id="t-yearbest"></table></div>
+    <p class="note">Blank cells mean no run that year covered the distance.</p>
+  </div>
+  <div class="grid g2">
+    <div class="panel" id="p-aero">
+      <h3>Aerobic efficiency</h3>
+      <div class="chart"><canvas id="c-aero"></canvas></div>
+      <p class="note" id="aero-note"></p>
+    </div>
+    <div class="panel" id="p-cloud">
+      <h3>Pace against heart rate, every run</h3>
+      <div class="chart"><canvas id="c-cloud"></canvas></div>
+      <p class="note">Each dot is one run of 3 km or more with HR. Colour is the year. A cloud that slides down and left over time means faster at the same cost.</p>
+    </div>
+  </div>
+  <div class="grid g2">
+    <div class="panel" id="p-zones">
+      <h3>Hours by heart-rate zone</h3>
+      <div class="chart"><canvas id="c-zones"></canvas></div>
+      <p class="note" id="zones-note"></p>
+      <p class="note small">Max HR: <input type="number" id="maxhr" min="120" max="240" style="width:5em"> bpm <button class="ghost small" id="maxhr-apply" type="button">Recalculate</button> <button class="ghost small" id="maxhr-reset" type="button">Use derived</button></p>
+    </div>
+    <div class="panel" id="p-cad">
+      <h3>Cadence</h3>
+      <div class="chart"><canvas id="c-cad"></canvas></div>
+      <p class="note" id="cad-note"></p>
+    </div>
+  </div>
+</section>
+
+<section class="tab" id="tab-records">
+  <h2>Races and time trials</h2>
+  <p class="lede">The races you confirmed, in order. Elapsed time is closest to a chip time; official results are shown where you entered them. <a href="#" id="edit-races-2">Edit the list</a>.</p>
+  <div class="panel">
+    <div style="overflow-x:auto"><table id="t-races"></table></div>
+    <p class="note" id="races-empty" hidden>No races confirmed yet.</p>
+  </div>
+  <div class="panel">
+    <h3>All-time records</h3>
+    <div style="overflow-x:auto"><table id="t-records"></table></div>
+    <p class="note" id="records-note"></p>
+  </div>
+  <div class="panel">
+    <h3>Longest runs</h3>
+    <div style="overflow-x:auto"><table id="t-longest"></table></div>
+  </div>
+</section>
+
+<section class="tab" id="tab-volume">
+  <h2>Volume, consistency, habits</h2>
+  <p class="lede" id="vol-lede"></p>
+  <div class="panel">
+    <h3 id="weekly-h"></h3>
+    <div class="chart"><canvas id="c-weekly"></canvas></div>
+    <p class="note" id="weekly-note"></p>
+  </div>
+  <div class="panel">
+    <h3 id="heat-h"></h3>
+    <div class="heat" id="heat"></div>
+    <div class="heat-legend">
+      <span><i style="background:var(--canola)"></i>run</span><span><i style="background:var(--sky)"></i>bike</span><span><i style="background:var(--swim)"></i>swim</span><span><i style="background:var(--strength)"></i>strength</span><span><i style="background:var(--other)"></i>walk / other</span><span>· darker = longer</span>
+    </div>
+    <p class="note">Coloured by the sport that took the most time that day. Hover for details.</p>
+  </div>
+  <div class="grid g2" id="vol-run-panels">
+    <div class="panel">
+      <h3>Weeks with three or more runs</h3>
+      <div class="chart short"><canvas id="c-consist"></canvas></div>
+      <p class="note" id="consist-note"></p>
+    </div>
+    <div class="panel">
+      <h3>How long your runs are</h3>
+      <div class="chart short"><canvas id="c-distdist"></canvas></div>
+      <p class="note">Share of runs by distance bucket.</p>
+    </div>
+  </div>
+  <div class="grid g2">
+    <div class="panel">
+      <h3 id="hour-h"></h3>
+      <div class="chart short"><canvas id="c-hour"></canvas></div>
+      <p class="note" id="hour-note"></p>
+    </div>
+    <div class="panel">
+      <h3>Which days</h3>
+      <div class="chart short"><canvas id="c-dow"></canvas></div>
+      <p class="note" id="dow-note"></p>
+    </div>
+  </div>
+  <div class="panel" id="p-shoes">
+    <h3 id="shoes-h"></h3>
+    <div class="chart tall"><canvas id="c-shoes"></canvas></div>
+    <p class="note">Top 15 pairs. Hover for run count and the dates you used them.</p>
+  </div>
+</section>
+
+<section class="tab" id="tab-multi">
+  <h2>Beyond running</h2>
+  <p class="lede" id="m-lede"></p>
+  <div class="panel">
+    <h3>Training hours by sport, per month</h3>
+    <div class="chart tall"><canvas id="c-sport-hours"></canvas></div>
+    <p class="note" id="sport-hours-note"></p>
+  </div>
+  <div class="grid g2">
+    <div class="panel">
+      <h3>Biggest days</h3>
+      <div style="overflow-x:auto"><table id="t-bigdays"></table></div>
+      <p class="note">The ten days with the most training time across every sport.</p>
+    </div>
+    <div class="panel">
+      <h3>Yearly totals by sport</h3>
+      <div style="overflow-x:auto"><table id="t-sport"></table></div>
+    </div>
+  </div>
+</section>
+
+<section class="tab" id="tab-predict">
+  <h2>Where this goes</h2>
+  <p class="lede">A projection, not a promise. It assumes you keep training roughly as you have for the past two years and stay healthy. Move the slider to see what more or less time does.</p>
+  <div id="predict-body"></div>
+</section>
+</main>
+<footer class="wrap" id="foot"></footer>

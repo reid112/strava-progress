@@ -391,20 +391,19 @@ export function buildData(csv: Table, results: WorkerResult[], profile: Profile 
   out.longest_rides = [...rides].sort((a, b) => b.km - a.km).slice(0, 10).map((a) => ({ d: a.loc.date, name: a.name.slice(0, 50), km: r(a.km, 1), t: Math.round(a.mt), elev: r(a.elev) }));
 
   // ---------- meta (everything the generic copy needs)
-  const gaps = (() => { // restarts = gaps > 90 days with no runs
-    let n = 0;
-    for (let i = 1; i < runDays.length; i++) if (runDays[i] - runDays[i - 1] > 90) n++;
-    return n;
-  })();
+  const restartDates: string[] = []; // restarts = gaps > 90 days with no runs
+  for (let i = 1; i < runDays.length; i++) if (runDays[i] - runDays[i - 1] > 90) restartDates.push(dateFromDayNumber(runDays[i]));
+  const maxYearKm = Math.max(0, ...out.yearly.map((y) => y.run_km));
+  const lowYears = out.yearly.filter((y) => y.year !== y1 && y.run_km < 0.2 * maxYearKm).map((y) => y.year);
   const argmax = (xs: number[]) => xs.length && Math.max(...xs) > 0 ? xs.indexOf(Math.max(...xs)) : null;
-  const filesTotal = acts.filter((a) => a.filename).length;
+  const filesTotal = results.length + (opts.filesMissing ?? 0);
   out.meta = {
     athlete_id: profile?.id ?? '', first_name: profile?.firstName ?? '', weight_kg: profile?.weight ?? null, city: profile?.city ?? '',
     tz: homeTz, tz_source: tzSource, max_hr: maxHr, max_hr_source: opts.maxHr && opts.maxHr > 100 ? 'user' : 'derived',
     files_total: filesTotal, files_failed: failed, files_missing: opts.filesMissing ?? 0, trimmed_multisport: trimmed, scaled_distance: scaled,
     floors, easy_hr: easy,
     primary_sport: hours(runs) >= hours(rides) ? 'run' : 'bike',
-    restarts: gaps, peak_hour: argmax(out.hour_hist), peak_dow: argmax(out.dow_hist),
+    restarts: restartDates.length, restart_dates: restartDates, low_years: lowYears, peak_hour: argmax(out.hour_hist), peak_dow: argmax(out.dow_hist),
     export_date: opts.exportDate,
   };
   return out;

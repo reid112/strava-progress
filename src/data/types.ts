@@ -79,6 +79,10 @@ export interface DataJson {
     easy_hr: [number, number];
     primary_sport: 'run' | 'bike';
     restarts: number;
+    /** Date of the first run after each gap of more than 90 days. */
+    restart_dates: string[];
+    /** Years with run volume under 20% of the best year (the "zero years"). */
+    low_years: number[];
     peak_hour: number | null;
     peak_dow: number | null;
     export_date: string;

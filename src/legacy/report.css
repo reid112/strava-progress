@@ -91,3 +91,47 @@ header{padding:56px 0 24px}
 footer{padding:30px 0 50px;color:var(--ink-2);font-size:14px;border-top:1px solid var(--line)}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 @media(max-width:640px){.panel{padding:16px}.chart{height:280px}h2{font-size:28px}.bignum{font-size:36px}}
+
+/* ---- app additions ---- */
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.who{font-family:var(--display);font-weight:600;font-size:17px;color:var(--ink-2)}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.seg.small{margin:0}.seg.small button{font-size:14px;padding:5px 11px}
+button.ghost{font-family:var(--display);font-weight:600;font-size:15px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer;color:var(--ink-2)}
+button.ghost.small{font-size:13px;padding:3px 9px}
+button.ghost:hover{border-color:var(--ink)}
+[hidden]{display:none!important}
+details.about summary{cursor:pointer;list-style:none}details.about summary::-webkit-details-marker{display:none}
+details.about summary::before{content:"▸ ";color:var(--ink-2)}details.about[open] summary::before{content:"▾ "}
+details.about p{margin-top:12px}
+/* landing */
+.landing{max-width:760px;margin:0 auto;padding:56px 24px 80px}
+.landing h1{font-size:clamp(40px,6vw,72px);margin-bottom:10px}
+.drop{margin:28px 0 18px;border:2px dashed var(--slate);border-radius:14px;padding:44px 24px;text-align:center;background:var(--surface);cursor:pointer;transition:border-color .15s,background .15s}
+.drop.over,.drop:hover{border-color:var(--sky);background:#F7FAFD}
+.drop strong{font-family:var(--display);font-size:22px;font-weight:600;display:block;margin-bottom:6px}
+.drop input{display:none}
+.privacy{background:var(--ink);color:#fff;border-radius:12px;padding:18px 22px;margin:18px 0}
+.privacy h3{color:var(--canola);font-size:19px;margin-bottom:6px}
+.privacy p{color:rgba(255,255,255,.85);margin:0;max-width:none}
+.howto{margin-top:26px}
+.howto ol{padding-left:22px}.howto li{margin-bottom:6px}
+.landing .fine{font-size:14px;color:var(--ink-2)}
+/* progress */
+.progress{max-width:640px;margin:0 auto;padding:80px 24px}
+.progress h2{margin-bottom:10px}
+.bar-wrap{height:14px;background:#E6EAEE;border-radius:7px;overflow:hidden;margin:14px 0}
+.bar-fill{height:100%;background:var(--canola);width:0;transition:width .15s}
+.progress .status{font-variant-numeric:tabular-nums;color:var(--ink-2)}
+/* races */
+.races{max-width:900px;margin:0 auto;padding:48px 24px 80px}
+.races table td{vertical-align:middle}
+.races input[type=text]{font:inherit;padding:5px 8px;border:1px solid var(--line);border-radius:6px;width:7.5em;font-variant-numeric:tabular-nums}
+.races input[type=text].bad{border-color:#B23A3A}
+.races .add{margin-top:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.races .add input[type=search]{font:inherit;padding:6px 10px;border:1px solid var(--line);border-radius:6px;min-width:260px}
+.races .sticky{position:sticky;bottom:0;background:rgba(242,244,246,.95);backdrop-filter:blur(8px);padding:12px 0;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-top:18px}
+.races .cands{max-height:60vh;overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.races .cands table{font-size:14px}.races .cands th{position:sticky;top:0;background:var(--surface)}
+.pill{display:inline-block;font-size:12px;padding:1px 7px;border-radius:10px;background:var(--sky-soft);color:var(--ink-2);margin-left:6px}
+.err{background:#FFF1F1;border:1px solid #E7B3B3;color:#7A2323;border-radius:10px;padding:14px 18px;margin:16px 0}

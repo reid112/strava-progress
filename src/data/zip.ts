@@ -19,6 +19,8 @@ export interface ZipEntry {
   usize: number;
   /** Offset of the local file header. */
   offset: number;
+  /** Modification time from the DOS date/time fields, epoch ms (local time, 2 s resolution). */
+  mtime: number;
 }
 
 export function blobSource(blob: Blob): ByteSource {
@@ -68,6 +70,9 @@ export async function readCentralDirectory(src: ByteSource): Promise<ZipEntry[]>
   for (let i = 0; i < entries && o + 46 <= cd.length; i++) {
     if (u32(v, o) !== SIG_CEN) throw new Error('bad central directory entry');
     const method = u16(v, o + 10);
+    const dtime = u16(v, o + 12), ddate = u16(v, o + 14);
+    // DOS time has no zone; Strava's servers write it in UTC.
+    const mtime = Date.UTC(1980 + (ddate >> 9), ((ddate >> 5) & 15) - 1, ddate & 31, dtime >> 11, (dtime >> 5) & 63, (dtime & 31) * 2);
     let csize = u32(v, o + 20), usize = u32(v, o + 24);
     const nameLen = u16(v, o + 28), extraLen = u16(v, o + 30), commentLen = u16(v, o + 32);
     let offset = u32(v, o + 42);
@@ -85,7 +90,7 @@ export async function readCentralDirectory(src: ByteSource): Promise<ZipEntry[]>
       }
       x += 4 + len;
     }
-    out.push({ name, method, csize, usize, offset });
+    out.push({ name, method, csize, usize, offset, mtime });
     o += 46 + nameLen + extraLen + commentLen;
   }
   return out;
