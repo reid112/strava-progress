@@ -107,7 +107,7 @@ details.about p{margin-top:12px}
 /* landing */
 .landing{max-width:760px;margin:0 auto;padding:56px 24px 80px}
 .landing h1{font-size:clamp(40px,6vw,72px);margin-bottom:10px}
-.drop{margin:28px 0 18px;border:2px dashed var(--slate);border-radius:14px;padding:44px 24px;text-align:center;background:var(--surface);cursor:pointer;transition:border-color .15s,background .15s}
+.drop{display:block;margin:28px 0 18px;border:2px dashed var(--slate);border-radius:14px;padding:44px 24px;text-align:center;background:var(--surface);cursor:pointer;transition:border-color .15s,background .15s}
 .drop.over,.drop:hover{border-color:var(--sky);background:#F7FAFD}
 .drop strong{font-family:var(--display);font-size:22px;font-weight:600;display:block;margin-bottom:6px}
 .drop input{display:none}
