@@ -398,7 +398,7 @@ export function buildData(csv: Table, results: WorkerResult[], profile: Profile 
   const restartDates: string[] = []; // restarts = gaps > 90 days with no runs
   for (let i = 1; i < runDays.length; i++) if (runDays[i] - runDays[i - 1] > 90) restartDates.push(dateFromDayNumber(runDays[i]));
   const maxYearKm = Math.max(0, ...out.yearly.map((y) => y.run_km));
-  const lowYears = out.yearly.filter((y) => y.year !== y1 && y.run_km < 0.1 * maxYearKm).map((y) => y.year);
+  const lowYears = out.yearly.filter((y) => y.year !== y0 && y.year !== y1 && y.run_km < 0.1 * maxYearKm).map((y) => y.year);
   const argmax = (xs: number[]) => xs.length && Math.max(...xs) > 0 ? xs.indexOf(Math.max(...xs)) : null;
   const filesTotal = results.length + (opts.filesMissing ?? 0);
   out.meta = {
