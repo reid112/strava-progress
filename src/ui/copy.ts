@@ -115,6 +115,10 @@ export function recordsNote(D: DataJson): string {
   return `Segment records from inside any run.${ins} Where a race GPS track came up a few metres short of the full distance, the whole-run time is scaled to the exact distance and marked with an asterisk. Times you entered as official are marked with a dagger.`;
 }
 
+export function noEffortsNote(D: DataJson): string {
+  return D.meta.files_total ? 'No run in this export covered 1 km at a plausible pace, so there are no segment records.' : 'Segment records need the activity files inside the export. Every run here is a manual entry with no file, so there is nothing to scan.';
+}
+
 export function consistencyNote(D: DataJson): string {
   const e = Object.entries(D.consistency).filter(([y]) => +y < +D.last.slice(0, 4));
   if (e.length < 2) return 'Out of 52.';
@@ -123,17 +127,17 @@ export function consistencyNote(D: DataJson): string {
 }
 
 export function hourNote(D: DataJson): string {
-  const h = D.hour_hist;
+  const h = D.meta.primary_sport === 'bike' ? D.hour_hist_bike : D.hour_hist;
   const tot = h.reduce((a, b) => a + b, 0);
   if (!tot) return '';
   const order = h.map((v, i) => [v, i] as const).sort((a, b) => b[0] - a[0]);
   const [v0, i0] = order[0], [v1, i1] = order[1];
   const second = v1 >= v0 * 0.7 && Math.abs(i1 - i0) > 1 ? ` and ${hour12(i1)}` : '';
-  return `Start hour, local time (${D.meta.tz_source === 'gps' ? tzName(D.meta.tz) : 'your browser zone'}). ${cap(hour12(i0))}${second} ${second ? 'are' : 'is'} when you run most.`;
+  return `Start hour, local time (${D.meta.tz_source === 'gps' ? tzName(D.meta.tz) : 'your browser zone'}). ${cap(hour12(i0))}${second} ${second ? 'are' : 'is'} when you ${D.meta.primary_sport === 'bike' ? 'ride' : 'run'} most.`;
 }
 
 export function dowNote(D: DataJson): string {
-  const d = D.dow_hist, i = d.indexOf(Math.max(...d));
+  const d = D.meta.primary_sport === 'bike' ? D.dow_hist_bike : D.dow_hist, i = d.indexOf(Math.max(...d));
   return d[i] ? `${DOWS[i]} is the busiest day.` : '';
 }
 
@@ -146,6 +150,10 @@ export function multiLede(D: DataJson): string {
   const other = D.yearly.reduce((a, y) => a + y.other_h, 0);
   if (other >= 5) bits.push(`${n(other)} hours of walking, hiking and other sports`);
   if (!bits.length) return `Every activity in the export is a run. Nothing else to show here yet.`;
+  if (D.meta.primary_sport === 'bike') {
+    const off = D.yearly.map((y) => ({ y: y.year, h: y.all_h - y.bike_h })).reduce((a, b) => (b.h > a.h ? b : a));
+    return `Strava has ${bits.join(', ')}${t.run_km ? ` and ${distR(t.run_km)} of running` : ''}. ${off.h >= 5 ? `${off.y} was the biggest year off the bike, at ${n(off.h)} hours.` : ''}`.trim();
+  }
   const bigYear = D.yearly.reduce((a, y) => (y.all_h - y.run_h > a.all_h - a.run_h ? y : a));
   return `Strava has ${bits.join(', ')} alongside the ${distR(t.run_km)} of running. ${bigYear.year} was the biggest year outside running, at ${n(bigYear.all_h - bigYear.run_h)} hours.`;
 }
@@ -154,5 +162,7 @@ export function footer(D: DataJson): string {
   const m = D.meta;
   const bad = m.files_failed + m.files_missing;
   const tz = m.tz_source === 'gps' ? `Local times from GPS (${tzName(m.tz)})` : `Local times use your browser's zone (${tzName(m.tz)}) because no activity had a GPS fix`;
-  return `Built from your Strava export of ${longDate(m.export_date)}: ${n(D.totals.activities)} activities, ${n(m.files_total - bad)} runs parsed at the second-by-second level${bad ? `, ${bad} ${bad === 1 ? 'file' : 'files'} couldn't be read` : ''}. Times inside runs are moving time; races show elapsed. ${tz}. Nothing left your browser.`;
+  const parsed = m.files_total - bad;
+  const files = m.files_total ? `${n(parsed)} activity ${parsed === 1 ? 'file' : 'files'} parsed at the second-by-second level${bad ? `, ${bad} ${bad === 1 ? 'file' : 'files'} couldn't be read` : ''}` : 'no activity files to parse';
+  return `Built from your Strava export of ${longDate(m.export_date)}: ${n(D.totals.activities)} activities, ${files}. Times inside runs are moving time; races show elapsed. ${tz}. Nothing left your browser.`;
 }

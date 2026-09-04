@@ -13,12 +13,21 @@ export interface JobMsg {
   sport: Sport;
 }
 export interface ResultMsg { type: 'result'; result: WorkerResult }
+export interface ReadyMsg { type: 'ready'; ok: boolean; err?: string }
 
 let src: ByteSource | null = null;
 
 self.onmessage = async (e: MessageEvent<InitMsg | JobMsg>) => {
   const m = e.data;
-  if (m.type === 'init') { src = blobSource(m.blob); return; }
+  if (m.type === 'init') {
+    src = blobSource(m.blob);
+    // Probe: some browsers hand a worker a File it cannot read (Safari on file://). Say so before any work is queued.
+    let ready: ReadyMsg;
+    try { await src.slice(0, Math.min(4, src.size)); ready = { type: 'ready', ok: true }; }
+    catch (e) { ready = { type: 'ready', ok: false, err: String((e as Error)?.message ?? e) }; }
+    (self as unknown as Worker).postMessage(ready);
+    return;
+  }
   let result: WorkerResult;
   try {
     if (!src) throw new Error('worker not initialised');

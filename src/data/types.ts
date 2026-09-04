@@ -37,7 +37,7 @@ export interface DataJson {
   yearly: {
     year: number; runs: number; run_km: number; run_h: number; longest: number; med_pace: number | null; avg_hr: number | null; cad: number | null;
     bike_km: number; bike_h: number; bike_elev: number; swim_km: number; swim_h: number; strength_h: number; other_h: number; all_h: number; activities: number; weeks_run: number;
-    rides: number; pw_avg: number | null;
+    rides: number; pw_avg: number | null; longest_ride: number;
   }[];
   monthly: { m: string; run_km: number; runs: number; run_h: number; bike_h: number; swim_h: number; strength_h: number; other_h: number; bike_km: number; swim_km: number; long: number }[];
   weekly: WeekRow[];
@@ -56,6 +56,8 @@ export interface DataJson {
   shoes: { name: string; km: number; n: number; first: string; last: string }[];
   hour_hist: number[];
   dow_hist: number[];
+  hour_hist_bike: number[];
+  dow_hist_bike: number[];
   dist_dist: Record<string, number[]>;
   train_last2y: { weeks: number; run_h_wk: number; all_h_wk: number; run_km_wk: number; run_h_wk_median: number };
   train_prev2y: { run_km_wk: number; all_h_wk: number };

@@ -206,7 +206,7 @@ export function buildData(csv: Table, results: WorkerResult[], profile: Profile 
       swim_km: r(kms(dd('Swim')), 1), swim_h: r(hours(dd('Swim')), 1), strength_h: r(hours(dd('Strength')), 1),
       other_h: r(hours(dd('Other')), 1), all_h: r(hours(d), 1), activities: d.length,
       weeks_run: new Set(rr.map((a) => weekStart(a.loc.date))).size,
-      rides: bb.length, pw_avg: pws.length ? r(mean(pws)!) : null,
+      rides: bb.length, pw_avg: pws.length ? r(mean(pws)!) : null, longest_ride: bb.length ? r(Math.max(...bb.map((a) => a.km)), 1) : 0,
     };
   }).map((row) => ({ ...row, med_pace: row.med_pace != null && Number.isNaN(row.med_pace) ? null : row.med_pace }));
 
@@ -358,6 +358,8 @@ export function buildData(csv: Table, results: WorkerResult[], profile: Profile 
   // ---------- time of day & weekday
   out.hour_hist = Array(24).fill(0); out.dow_hist = Array(7).fill(0);
   for (const a of runs) { out.hour_hist[a.loc.h]++; out.dow_hist[a.loc.dow]++; }
+  out.hour_hist_bike = Array(24).fill(0); out.dow_hist_bike = Array(7).fill(0);
+  for (const a of rides) { out.hour_hist_bike[a.loc.h]++; out.dow_hist_bike[a.loc.dow]++; }
 
   // ---------- distance distribution per year (right-closed bins like pd.cut)
   const bins = [0, 5, 8, 12, 16, 21, 30, 60];
@@ -403,7 +405,8 @@ export function buildData(csv: Table, results: WorkerResult[], profile: Profile 
     files_total: filesTotal, files_failed: failed, files_missing: opts.filesMissing ?? 0, trimmed_multisport: trimmed, scaled_distance: scaled,
     floors, easy_hr: easy,
     primary_sport: hours(runs) >= hours(rides) ? 'run' : 'bike',
-    restarts: restartDates.length, restart_dates: restartDates, low_years: lowYears, peak_hour: argmax(out.hour_hist), peak_dow: argmax(out.dow_hist),
+    restarts: restartDates.length, restart_dates: restartDates, low_years: lowYears,
+    peak_hour: argmax(hours(runs) >= hours(rides) ? out.hour_hist : out.hour_hist_bike), peak_dow: argmax(hours(runs) >= hours(rides) ? out.dow_hist : out.dow_hist_bike),
     export_date: opts.exportDate,
   };
   return out;

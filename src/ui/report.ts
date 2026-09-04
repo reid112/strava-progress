@@ -8,12 +8,14 @@ import * as copy from './copy';
 import { KEYS, LBL, dist, distR, distS, distUnit, elevS, esc, fmt, getUnits, n, pace, paceS, paceUnit, setUnits, speedS, monthYear, hour12, MONTHS } from './format';
 import { renderHero } from './hero';
 import { renderPredict } from './predict';
+import { shareImage } from './share';
 import template from './report.html?raw';
 
 export interface ReportHandlers {
   onEditRaces(): void;
   onStartOver(): void;
   onMaxHr(v: number | null): void;
+  onSave(): void;
 }
 
 const $ = (s: string) => document.querySelector(s) as HTMLElement;
@@ -41,6 +43,8 @@ export function renderReport(root: HTMLElement, D: DataJson, h: ReportHandlers) 
   $('#edit-races').addEventListener('click', h.onEditRaces);
   $('#edit-races-2').addEventListener('click', (e) => { e.preventDefault(); h.onEditRaces(); });
   $('#start-over').addEventListener('click', h.onStartOver);
+  $('#save-json').addEventListener('click', h.onSave);
+  $('#share-img').addEventListener('click', () => { void shareImage(D); });
   if (hasRuns) renderHero(D); else $('#race').hidden = true;
 
   // ---------- tabs (bike-first athletes get the running tabs demoted, or dropped if there are none)
@@ -69,7 +73,7 @@ export function renderReport(root: HTMLElement, D: DataJson, h: ReportHandlers) 
     const maxkm = Math.max(1, ...yrs.map((y) => y[key]));
     $('#timeline').innerHTML = yrs.map((y) => {
       const b = D.best_by_year['5k']?.[y.year];
-      const small = bike ? `${y.rides} rides · ${n(y.bike_h)} h<br>longest ${y.rides ? distS(Math.max(...D.longest_rides.filter((r) => r.d.startsWith(String(y.year))).map((r) => r.km), 0), 0) : '—'}` : `${y.runs} runs<br>${b ? '5K ' + fmt(b.t) : '—'}`;
+      const small = bike ? `${y.rides} rides · ${n(y.bike_h)} h<br>${y.rides ? 'longest ' + distS(y.longest_ride, 0) : '—'}` : `${y.runs} runs<br>${b ? '5K ' + fmt(b.t) : '—'}`;
       return `<div class="yr"><div class="y">${y.year}</div><div class="bar" style="width:${Math.max(3, y[key] / maxkm * 100)}%"></div><div class="km">${distR(y[key])}</div><div class="s">${small}</div></div>`;
     }).join('');
     const t = D.totals;
@@ -101,6 +105,9 @@ export function renderReport(root: HTMLElement, D: DataJson, h: ReportHandlers) 
   function progress() {
     const seg = $('#seg-dist');
     const avail = KEYS.filter((k) => D.effort_scatter[k]?.length);
+    $('#progress-empty').hidden = avail.length > 0;
+    $('#progress-body').hidden = avail.length === 0;
+    if (!avail.length) return;
     if (!avail.includes(curDist)) curDist = avail[0] ?? '5k';
     seg.innerHTML = avail.map((k) => `<button data-k="${k}" aria-pressed="${k === curDist}">${LBL[k]}</button>`).join('');
     seg.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => { curDist = b.dataset.k as TargetKey; seg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); drawEffort(); }));
@@ -179,8 +186,9 @@ export function renderReport(root: HTMLElement, D: DataJson, h: ReportHandlers) 
       const vd = k ? vdot(TARGETS[k], off || r.elapsed).toFixed(1) : '';
       return `<tr><td>${r.d}</td><td>${esc(r.name)}</td><td class="num">${distS(r.km, 2)}</td><td class="num"><strong>${t}</strong>${off ? '<div class="note small" style="margin:0">official · watch ' + fmt(r.elapsed) + '</div>' : ''}</td><td class="num">${paceS(r.elapsed / r.km)}</td><td class="num">${r.hr ?? '—'}</td><td class="num">${vd}</td><td class="note small" style="margin:0">${esc(r.desc.replace(/\[strava:\/\/[^\]]+\]/g, ''))}</td></tr>`;
     }).join('') : '';
-    set('records-note', copy.recordsNote(D));
-    $('#t-records').innerHTML = `<tr><th>Distance</th><th class="num">Record</th><th class="num">Pace</th><th>Where</th><th>Date</th><th class="num">VDOT</th><th class="num">First recorded</th><th class="num">Gained</th></tr>` + KEYS.map((k) => {
+    const anyRec = KEYS.some((k) => D.pr_progression[k]?.length);
+    set('records-note', anyRec ? copy.recordsNote(D) : copy.noEffortsNote(D));
+    $('#t-records').innerHTML = !anyRec ? '' : `<tr><th>Distance</th><th class="num">Record</th><th class="num">Pace</th><th>Where</th><th>Date</th><th class="num">VDOT</th><th class="num">First recorded</th><th class="num">Gained</th></tr>` + KEYS.map((k) => {
       const pr = D.pr_progression[k];
       if (!pr?.length) return '';
       const p = pr[pr.length - 1], f = pr[0];
@@ -238,8 +246,9 @@ export function renderReport(root: HTMLElement, D: DataJson, h: ReportHandlers) 
     set('hour-h', bike ? 'When you ride' : 'When you run');
     set('hour-note', copy.hourNote(D));
     set('dow-note', copy.dowNote(D));
-    mk('c-hour', { type: 'bar', data: { labels: [...Array(24).keys()].map((hh) => hour12(hh)), datasets: [{ data: D.hour_hist, backgroundColor: C.sky, borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { maxTicksLimit: 12 } }, y: { grid: gridOpt, title: { display: true, text: 'runs' } } } } });
-    mk('c-dow', { type: 'bar', data: { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], datasets: [{ data: D.dow_hist, backgroundColor: C.sky, borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: gridOpt, title: { display: true, text: 'runs' } } } } });
+    const hh = bike ? D.hour_hist_bike : D.hour_hist, dh = bike ? D.dow_hist_bike : D.dow_hist, unit = bike ? 'rides' : 'runs';
+    mk('c-hour', { type: 'bar', data: { labels: [...Array(24).keys()].map((x) => hour12(x)), datasets: [{ data: hh, backgroundColor: C.sky, borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { maxTicksLimit: 12 } }, y: { grid: gridOpt, title: { display: true, text: unit } } } } });
+    mk('c-dow', { type: 'bar', data: { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], datasets: [{ data: dh, backgroundColor: C.sky, borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: gridOpt, title: { display: true, text: unit } } } } });
     const sh = D.shoes.slice(0, 15);
     $('#p-shoes').hidden = !sh.length;
     if (sh.length) {

@@ -5,6 +5,8 @@
     <div class="controls">
       <div class="seg small" id="seg-units" role="group" aria-label="Units"><button data-u="km" aria-pressed="true">km</button><button data-u="mi" aria-pressed="false">mi</button></div>
       <button class="ghost" id="edit-races" type="button">Edit races</button>
+      <button class="ghost" id="share-img" type="button">Share as image</button>
+      <button class="ghost" id="save-json" type="button">Save page data</button>
       <button class="ghost" id="start-over" type="button">Load another export</button>
     </div>
   </div>
@@ -58,6 +60,8 @@
 <section class="tab" id="tab-progress">
   <h2>How the times came down</h2>
   <p class="lede">Every run was scanned for its fastest 1K, mile, 5K, 10K, 15K, half, 30K and marathon segment, the same way Strava's best efforts work. That means training runs count, not just races.</p>
+  <div class="panel" id="progress-empty" hidden><h3>No segment efforts to show</h3><p class="note">Efforts come from the second-by-second files in the export. This export's runs have no files (manual entries, or an older account), or none of them covered 1 km at a plausible pace.</p></div>
+  <div id="progress-body">
   <div class="panel">
     <div class="seg" id="seg-dist" role="group" aria-label="Distance"></div>
     <div class="chart tall"><canvas id="c-effort"></canvas></div>
@@ -93,6 +97,7 @@
       <div class="chart"><canvas id="c-cad"></canvas></div>
       <p class="note" id="cad-note"></p>
     </div>
+  </div>
   </div>
 </section>
 

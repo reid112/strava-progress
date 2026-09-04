@@ -6,8 +6,8 @@ export function renderLanding(root: HTMLElement, onFile: (f: File) => void, erro
     ${error ? `<div class="err">${error}</div>` : ''}
     <label class="drop" id="drop">
       <strong>Drop your export_&lt;id&gt;.zip here</strong>
-      <span>or click to choose it. A few hundred megabytes is normal; it never uploads.</span>
-      <input type="file" id="file" accept=".zip,application/zip">
+      <span>or click to choose it. A few hundred megabytes is normal; it never uploads. A page-data JSON saved from here works too.</span>
+      <input type="file" id="file" accept=".zip,.json,application/zip,application/json">
     </label>
     <div class="privacy">
       <h3>Nothing leaves your browser</h3>

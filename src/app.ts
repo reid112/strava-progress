@@ -12,6 +12,8 @@ import { detect, loadOverrides, renderRaces, saveOverrides, type RaceCandidate }
 import { renderReport } from './ui/report';
 
 interface Session {
+  /** Present when the session came from a saved JSON rather than a zip. */
+  restored?: boolean;
   csv: Table;
   profile: Profile | null;
   results: WorkerResult[];
@@ -35,7 +37,34 @@ function sportOf(type: string): Sport {
 }
 
 export function start(error?: string) {
-  renderLanding(root(), (f) => { void load(f); }, error);
+  renderLanding(root(), (f) => { void (f.name.toLowerCase().endsWith('.json') ? restore(f) : load(f)); }, error);
+}
+
+/** Phase 3: re-open a JSON saved from the page, no zip and no re-parse. */
+async function restore(file: File) {
+  try {
+    const data = JSON.parse(await file.text()) as DataJson;
+    if (!data?.totals || !data?.meta) throw new Error('not a saved page file');
+    const s: Session = { restored: true, csv: table(''), profile: null, results: [], filesMissing: 0, exportDate: data.meta.export_date, overrides: { include: new Set(), exclude: new Set(), official: {} }, maxHr: null, homeTz: data.meta.tz, data };
+    renderReport(root(), data, {
+      onEditRaces: () => alert('Race edits need the original export zip. Load it again to change the list.'),
+      onStartOver: () => start(),
+      onMaxHr: () => alert('Changing max HR needs the original export zip.'),
+      onSave: () => save(s),
+    });
+  } catch (e) {
+    start(`Couldn't read that file: ${(e as Error).message}`);
+  }
+}
+
+function save(s: Session) {
+  if (!s.data) return;
+  const blob = new Blob([JSON.stringify(s.data)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `strava-progress-${s.data.meta.first_name ? s.data.meta.first_name.toLowerCase() + '-' : ''}${s.data.last}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
 }
 
 /** Read the zip, parse every run (and ride, for the bike-first variant) in workers, then aggregate. */
@@ -63,7 +92,7 @@ export async function load(file: File) {
     let filesMissing = 0;
     for (const row of csv.rows) {
       const sport = sportOf(csv.get(row, 'Activity Type'));
-      if (sport !== 'running') continue; // streams are only needed for running efforts and HR zones
+      if (sport !== 'running' && sport !== 'cycling') continue; // runs for efforts and HR zones; rides for the timezone fix
       const fn = csv.get(row, 'Filename');
       if (!fn) continue;
       const e = byName.get(fn);
@@ -71,7 +100,7 @@ export async function load(file: File) {
       jobs.push({ id: csv.get(row, 'Activity ID'), filename: fn, entry: e, csvDistance: num(csv.get(row, 'Distance.1')) ?? 0, elapsed: num(csv.get(row, 'Elapsed Time')) ?? 0, sport });
     }
     view.set(0, jobs.length);
-    view.status(`${csv.rows.length.toLocaleString()} activities in the export, ${jobs.length.toLocaleString()} run files to parse on ${navigator.hardwareConcurrency || 4} threads.`);
+    view.status(`${csv.rows.length.toLocaleString()} activities in the export, ${jobs.length.toLocaleString()} run and ride files to parse on ${navigator.hardwareConcurrency || 4} threads.`);
     const t0 = performance.now();
     const results = jobs.length ? await runPool(file, jobs, (p) => view.set(p.done, p.total)) : [];
     view.status(`Parsed in ${((performance.now() - t0) / 1000).toFixed(1)} s. Building the page…`);
@@ -114,5 +143,6 @@ function showReport(s: Session) {
     onEditRaces: () => confirmRaces(s, false),
     onStartOver: () => start(),
     onMaxHr: (v) => { s.maxHr = v; try { if (v) localStorage.setItem('maxhr:' + (s.profile?.id || 'unknown'), String(v)); else localStorage.removeItem('maxhr:' + (s.profile?.id || 'unknown')); } catch { /* ignore */ } showReport(s); },
+    onSave: () => save(s),
   });
 }
