@@ -60,7 +60,7 @@ header{padding:56px 0 24px}
 .lane{position:relative;height:56px;margin:6px 0 4px}
 .lane .track{position:absolute;left:0;right:0;top:27px;height:2px;background:rgba(255,255,255,.25)}
 .lane .tick{position:absolute;top:22px;width:1px;height:12px;background:rgba(255,255,255,.35)}
-.lane .tick span{position:absolute;top:14px;left:-10px;font-size:11px;color:rgba(255,255,255,.6);width:24px;text-align:center}
+.lane .tick span{position:absolute;top:14px;left:-22px;font-size:11px;color:rgba(255,255,255,.6);width:44px;text-align:center;white-space:nowrap}
 .lane .runner{position:absolute;top:18px;width:20px;height:20px;border-radius:50%;margin-left:-10px;transition:none}
 .lane .runner.now{background:var(--canola);box-shadow:0 0 0 4px rgba(228,179,31,.25)}
 .lane .runner.then{background:var(--wheat);opacity:.9}

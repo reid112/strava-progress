@@ -93,6 +93,8 @@ function monthKey(loc: LocalParts): string { return `${loc.y}-${String(loc.m).pa
 
 export function buildData(csv: Table, results: WorkerResult[], profile: Profile | null, opts: BuildOptions): DataJson {
   // ---------- per-activity stream results, timezone
+  // Virtual runs and rides (Zwift) carry made-up GPS, so their zone must not come from the file.
+  const virtual = new Set(csv.rows.filter((row) => /^Virtual /.test(csv.get(row, 'Activity Type'))).map((row) => csv.get(row, 'Activity ID')));
   const rs = new Map<string, ActivityResult>();
   let failed = 0, trimmed = 0, scaled = 0;
   const tzVotes = new Map<string, number>();
@@ -102,7 +104,7 @@ export function buildData(csv: Table, results: WorkerResult[], profile: Profile 
     rs.set(x.id, { ...x, be: { ...x.be } }); // copy: this function mutates efforts and must stay re-runnable
     if (x.trimmed) trimmed++;
     if (x.scaled) scaled++;
-    if (x.pos0) {
+    if (x.pos0 && !virtual.has(x.id)) {
       const tz = tzFromLatLon(x.pos0[0], x.pos0[1]);
       if (tz) { tzById.set(x.id, tz); tzVotes.set(tz, (tzVotes.get(tz) ?? 0) + 1); }
     }
@@ -396,7 +398,7 @@ export function buildData(csv: Table, results: WorkerResult[], profile: Profile 
   const restartDates: string[] = []; // restarts = gaps > 90 days with no runs
   for (let i = 1; i < runDays.length; i++) if (runDays[i] - runDays[i - 1] > 90) restartDates.push(dateFromDayNumber(runDays[i]));
   const maxYearKm = Math.max(0, ...out.yearly.map((y) => y.run_km));
-  const lowYears = out.yearly.filter((y) => y.year !== y1 && y.run_km < 0.2 * maxYearKm).map((y) => y.year);
+  const lowYears = out.yearly.filter((y) => y.year !== y1 && y.run_km < 0.1 * maxYearKm).map((y) => y.year);
   const argmax = (xs: number[]) => xs.length && Math.max(...xs) > 0 ? xs.indexOf(Math.max(...xs)) : null;
   const filesTotal = results.length + (opts.filesMissing ?? 0);
   out.meta = {

@@ -106,7 +106,8 @@ export async function load(file: File) {
     view.status(`Parsed in ${((performance.now() - t0) / 1000).toFixed(1)} s. Building the page…`);
     const athleteId = profile?.id || 'unknown';
     const votes = new Map<string, number>();
-    for (const r of results) if ('pos0' in r && r.pos0) { const z = tzFromLatLon(r.pos0[0], r.pos0[1]); if (z) votes.set(z, (votes.get(z) ?? 0) + 1); }
+    const virtual = new Set(csv.rows.filter((row) => /^Virtual /.test(csv.get(row, 'Activity Type'))).map((row) => csv.get(row, 'Activity ID')));
+    for (const r of results) if ('pos0' in r && r.pos0 && !virtual.has(r.id)) { const z = tzFromLatLon(r.pos0[0], r.pos0[1]); if (z) votes.set(z, (votes.get(z) ?? 0) + 1); }
     const homeTz = [...votes.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? browserTz();
     const session: Session = { csv, profile, results, filesMissing, exportDate, overrides: loadOverrides(athleteId), maxHr: null, homeTz };
     try { const m = localStorage.getItem('maxhr:' + athleteId); if (m) session.maxHr = +m || null; } catch { /* ignore */ }
